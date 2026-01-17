@@ -10,5 +10,3 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 }
-
-// TODO: Add request logging middleware [ttt.todo.middleware.logging]

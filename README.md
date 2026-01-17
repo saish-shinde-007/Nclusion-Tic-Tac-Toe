@@ -1,139 +1,94 @@
-# Backend SWE Take-Home Assignment - Java
+# Tic-Tac-Toe Backend API
 
-## Overview
+A Spring Boot REST API for managing Tic-Tac-Toe games.
 
-This is a **1-2 hour take-home assignment**. You will build a small, network-accessible backend web service that manages a turn-based, grid-driven game from pre-defined rules. Your assignment is tailored: a randomized (but reproducible) set of TODOs, features, and bugs has been embedded inline.
+## Requirements
 
-You should focus on:
-- Clear, maintainable API handlers and service logic
-- Robust input validation and error handling
-- Simple, reliable tests (unit and integration)
-- Helpful logs/metrics stubs where applicable
+- **Java 17** (required)
+- Maven 3.6+
 
-## Getting Started
-
-### Prerequisites
-
-- Java 17 or higher
-- Maven 3.6 or higher
-
-### Installation
+## Quick Start
 
 ```bash
-mvn clean install
-```
+# Set Java 17 (if not default)
+export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 
-### Running the Application
-
-```bash
+# Run the application
 mvn spring-boot:run
-```
 
-The application will start on port 8080.
-
-### Running Tests
-
-```bash
+# Run tests
 mvn test
 ```
 
-### Running the Simulation
+Server starts at **http://localhost:8080**
 
-> Optional: You may create a simple simulation script or test that spins up your server, plays multiple sessions concurrently, and prints a small leaderboard summary.
+## API Endpoints
 
-## Project Structure
+### Players (`/api/players`)
 
-```
-src/
-├── main/
-│   ├── java/
-│   │   └── com/
-│   │       └── example/
-│   │           ├── Application.java
-│   │           ├── controller/
-│   │           ├── model/
-│   │           ├── service/
-│   │           └── repository/
-│   └── resources/
-│       └── application.properties
-└── test/
-    └── java/
-        └── com/
-            └── example/
-                ├── controller/
-                ├── model/
-                └── service/
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/players` | Create player |
+| GET | `/api/players` | List all players |
+| GET | `/api/players/{id}` | Get player |
+| PUT | `/api/players/{id}` | Update player |
+| DELETE | `/api/players/{id}` | Delete player |
+| GET | `/api/players/{id}/stats` | Get player stats |
+| GET | `/api/players/leaderboard` | Get leaderboard |
+| GET | `/api/players/count` | Get player count |
 
-## What You Need to Implement
+### Games (`/games`)
 
-### Selected Tasks
-
-#### TODOs
-- Complete players routes (update, delete, search)
-- Add request logging middleware
-- Add player email validation
-- Complete games routes (status, join, moves, stats, delete, list)
-- Extend leaderboard endpoints (pagination, filters)
-- Standardize service error handling and messages
-
-#### Feature Requests
-- Add basic rate limiting middleware
-
-#### Bugs To Fix
-- Fix off-by-one error in win detection (symptom: )
-
-### Core Requirements (high-level)
-
-1. Turn-based rules on a finite grid with obvious invalid-move conditions
-2. Multiple sessions can run concurrently; two players start a session
-3. End a session on win or draw; expose session status
-4. Leaderboard endpoint returning top users by wins or "efficiency" (lower moves per win is better)
-5. A small simulation or test path that exercises the API
-
-Additionally, look for inline TODOs in language-appropriate files. Examples:
-- Java: `src/main/java/com/example/controller/*`, `src/main/java/com/example/service/*`, `src/main/java/com/example/model/*`, `src/main/java/com/example/Application.java`
-
-> Focus on correctness, quality, and clarity. If you finish early, feel free to polish or extend.
-
-## Notes
-
-- Inline TODOs are your primary guide. GitHub Issues are intentionally disabled.
-- Keep commits small and frequent with clear messages.
-- You may add libraries if they help you implement tasks cleanly.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/games` | Create game |
+| GET | `/games` | List all games |
+| GET | `/games/{id}` | Get game |
+| GET | `/games/{id}/status` | Get game status |
+| GET | `/games/waiting` | Get waiting games |
+| GET | `/games/stats` | Get game stats |
+| POST | `/games/{id}/join` | Join game |
+| POST | `/games/{id}/moves` | Make a move |
+| DELETE | `/games/{id}` | Delete game |
 
 ## Quick API Examples
 
-Assuming your server is running on http://localhost:8080
-
-Create a game
 ```bash
-curl -s -X POST http://localhost:8080/games -H 'Content-Type: application/json' -d '{"name":"Sample"}' | jq .
-```
+# Create a game
+curl -s -X POST http://localhost:8080/games -H 'Content-Type: application/json' \
+  -d '{"name":"Sample"}' | jq .
 
-Join the game
-```bash
+# Join the game
 GAME_ID=<paste-from-create>
-curl -s -X POST http://localhost:8080/games/$GAME_ID/join -H 'Content-Type: application/json' -d '{"playerId":"player-1"}' | jq .
-curl -s -X POST http://localhost:8080/games/$GAME_ID/join -H 'Content-Type: application/json' -d '{"playerId":"player-2"}' | jq .
-```
+curl -s -X POST http://localhost:8080/games/$GAME_ID/join -H 'Content-Type: application/json' \
+  -d '{"playerId":"<player-id>"}' | jq .
 
-Make a move and get status
-```bash
-curl -s -X POST http://localhost:8080/games/$GAME_ID/moves -H 'Content-Type: application/json' -d '{"playerId":"player-1","row":0,"col":0}' | jq .
+# Make a move
+curl -s -X POST http://localhost:8080/games/$GAME_ID/moves -H 'Content-Type: application/json' \
+  -d '{"playerId":"<player-id>","row":0,"col":0}' | jq .
+
+# Get game status
 curl -s http://localhost:8080/games/$GAME_ID/status | jq .
 ```
 
-Leaderboard (optional)
-```bash
-curl -s http://localhost:8080/leaderboard | jq .
-```
+## Features
 
-## Submission
+- **Rate Limiting**: 100 requests/minute per IP with `X-RateLimit-*` headers
+- **Request Logging**: All requests logged with request ID and timing
+- **Email Validation**: Strict regex pattern validation
+- **Win Detection**: Automatic win/draw detection
+- **Player Stats**: Tracks games played, wins, losses, draws
 
-1. Ensure tests pass
-2. Run the simulation script
-3. Update this README with any setup notes
-4. Submit your repository URL
+---
 
-Good luck! 🚀
+## AI Usage Disclosure
+
+I used an AI coding assistant for targeted technical research and test generation during this assignment:
+
+1. **Email Validation Regex** — Consulted AI to verify the RFC-compliant regex pattern `^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$` for stricter validation than Jakarta's default `@Email` (which accepts nearly anything with an `@`). This ensures proper TLD enforcement and rejects malformed addresses like `user@domain` without extension.
+
+2. **Lombok + Java 17 Compatibility** — Used AI to troubleshoot a `java.lang.ExceptionInInitializerError` caused by Lombok's annotation processor failing with Java 25. Identified that Lombok 1.18.34 resolves the issue when paired with Java 17, and configured `JAVA_HOME` accordingly.
+
+3. **Controller & Service Tests** — Due to time constraints, I used AI assistance to generate the unit tests for `GameControllerTest.java`, `PlayerControllerTest.java`, `GameServiceTest.java`, and `PlayerServiceTest.java`. The tests cover HTTP status codes, business logic validation, error handling, and edge cases. I reviewed and verified all generated tests to ensure correctness and alignment with the actual implementation behavior.
+
+All implementation decisions—including the sliding window rate limiter with `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` headers, game state management, win detection logic, and API design—were made independently. The model tests (`GameTest.java`) were also written independently. I am fully prepared to discuss, debug, or extend any part of this codebase in a live session.
